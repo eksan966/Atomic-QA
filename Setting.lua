@@ -2,7 +2,7 @@ local Notice = {
     {date = "2026-2-3", desc = "开始制作Atomic"},
 }
 local LoadServer = {
-    "暂时没有",
+    "俄亥俄州",
 
 }
 local LoadingSteps = {
