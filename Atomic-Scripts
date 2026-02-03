@@ -1,0 +1,1558 @@
+local LoadingSteps, Notice, LoadServer, Developers, List = loadstring(game:HttpGet('https://raw.githubusercontent.com/eksan966/Atomic-QA/refs/heads/main/Setting.lua'))()
+
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local function IsMobile()
+    return UserInputService.TouchEnabled and not UserInputService.MouseEnabled
+end
+
+local function cleanupAllGuis()
+    for _, gui in pairs(playerGui:GetChildren()) do
+        if gui.Name == "AtomicLoader" or gui.Name == "AtomicGameList" then
+            gui:Destroy()
+        end
+    end
+end
+
+local function createParticle(parent)
+    local particle = Instance.new("Frame")
+    particle.Size = UDim2.new(0, math.random(2, 4), 0, math.random(2, 4))
+    particle.Position = UDim2.new(math.random(0, 100)/100, 0, math.random(0, 100)/100, 0)
+    particle.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+    particle.BackgroundTransparency = math.random(30, 70)/100
+    particle.BorderSizePixel = 0
+    particle.ZIndex = 6
+    particle.Parent = parent
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0.5, 0)
+    corner.Parent = particle
+    spawn(function()
+        while particle.Parent do
+            local moveInfo = TweenInfo.new(math.random(20, 40)/10, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+            local newPos = UDim2.new(math.random(0, 100)/100, 0, math.random(0, 100)/100, 0)
+            local moveTween = TweenService:Create(particle, moveInfo, {Position = newPos})
+            moveTween:Play()
+            wait(math.random(20, 40)/10)
+        end
+    end)
+end
+
+local function showLoadingAnimation(onComplete)
+    cleanupAllGuis()
+
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "AtomicLoader"
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    screenGui.ResetOnSpawn = false
+    screenGui.IgnoreGuiInset = true
+    screenGui.Parent = playerGui
+
+    local background = Instance.new("Frame")
+    background.Size = UDim2.new(1, 0, 1, 0)
+    background.Position = UDim2.new(0, 0, 0, 0)
+    background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    background.BackgroundTransparency = 0.3
+    background.BorderSizePixel = 0
+    background.ZIndex = 1
+    background.Parent = screenGui
+
+    local backgroundGradient = Instance.new("UIGradient")
+    backgroundGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
+        ColorSequenceKeypoint.new(0.3, Color3.fromRGB(10, 10, 10)),
+        ColorSequenceKeypoint.new(0.7, Color3.fromRGB(0, 0, 0)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 15))
+    }
+    backgroundGradient.Rotation = 45
+    backgroundGradient.Parent = background
+
+    spawn(function()
+        while background.Parent do
+            local rotateInfo = TweenInfo.new(12, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, 0, true)
+            local rotateTween = TweenService:Create(backgroundGradient, rotateInfo, {Rotation = 135})
+            rotateTween:Play()
+            wait(12)
+        end
+    end)
+
+    local viewportSize = workspace.CurrentCamera.ViewportSize
+    local isMobile = IsMobile()
+    local minWidth = 280
+    local maxWidth = isMobile and 400 or 600
+    local baseWidth = math.max(minWidth, math.min(viewportSize.X * (isMobile and 0.9 or 0.4), maxWidth))
+    local baseHeight = math.max(200, baseWidth * 0.618)
+    
+    local mainContainer = Instance.new("Frame")
+    mainContainer.Size = UDim2.new(0, baseWidth, 0, baseHeight)
+    mainContainer.Position = UDim2.new(0, -baseWidth - 100, 0.5, -baseHeight/2)
+    mainContainer.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    mainContainer.BackgroundTransparency = 0.05
+    mainContainer.BorderSizePixel = 0
+    mainContainer.ZIndex = 3
+    mainContainer.Parent = screenGui
+
+    local mainCorner = Instance.new("UICorner")
+    mainCorner.CornerRadius = UDim.new(0, 28)
+    mainCorner.Parent = mainContainer
+
+    local shadowStroke1 = Instance.new("UIStroke")
+    shadowStroke1.Thickness = 0.5
+    shadowStroke1.Color = Color3.fromRGB(0, 0, 0)
+    shadowStroke1.Transparency = 0.7
+    shadowStroke1.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    shadowStroke1.Parent = mainContainer
+
+    local mainStroke = Instance.new("UIStroke")
+    mainStroke.Thickness = 0.5
+    mainStroke.Color = Color3.fromRGB(200, 200, 200)
+    mainStroke.Transparency = 0
+    mainStroke.Parent = mainContainer
+
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 50)),
+        ColorSequenceKeypoint.new(0.2, Color3.fromRGB(35, 35, 35)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(30, 30, 30)),
+        ColorSequenceKeypoint.new(0.8, Color3.fromRGB(40, 40, 40)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(45, 45, 45))
+    }
+    gradient.Rotation = 135
+    gradient.Parent = mainContainer
+
+    spawn(function()
+        while mainContainer.Parent do
+            local rotateInfo = TweenInfo.new(8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, 0, true)
+            local rotateTween = TweenService:Create(gradient, rotateInfo, {Rotation = 225})
+            rotateTween:Play()
+            wait(8)
+        end
+    end)
+
+    local titleLabel = Instance.new("TextLabel")
+    local titleTextSize = isMobile and math.min(20, baseWidth * 0.06) or math.min(28, baseWidth * 0.05)
+    titleLabel.Size = UDim2.new(1, -30, 0, math.max(40, titleTextSize + 20))
+    titleLabel.Position = UDim2.new(0, 15, 0, 15)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = "亲爱的 " .. player.Name
+    titleLabel.TextColor3 = Color3.fromRGB(240, 240, 240)
+    titleLabel.TextSize = titleTextSize
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.TextWrapped = true
+    titleLabel.ZIndex = 4
+    titleLabel.TextTransparency = 1
+    titleLabel.Parent = mainContainer
+
+    local welcomeLabel = Instance.new("TextLabel")
+    local welcomeTextSize = isMobile and math.min(22, baseWidth * 0.055) or math.min(32, baseWidth * 0.055)
+    welcomeLabel.Size = UDim2.new(1, -30, 0, math.max(35, welcomeTextSize + 15))
+    welcomeLabel.Position = UDim2.new(0, 15, 0, 15 + titleLabel.Size.Y.Offset)
+    welcomeLabel.BackgroundTransparency = 1
+    welcomeLabel.Text = "欢迎使用 Atomic 脚本"
+    welcomeLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    welcomeLabel.TextSize = welcomeTextSize
+    welcomeLabel.Font = Enum.Font.GothamBold
+    welcomeLabel.TextXAlignment = Enum.TextXAlignment.Left
+    welcomeLabel.TextWrapped = true
+    welcomeLabel.ZIndex = 4
+    welcomeLabel.TextTransparency = 1
+    welcomeLabel.Parent = mainContainer
+
+
+    local welcomeGradient = Instance.new("UIGradient")
+    welcomeGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 220, 220)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180, 180, 180)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 150, 150))
+    }
+    welcomeGradient.Parent = welcomeLabel
+    local statusLabel = Instance.new("TextLabel")
+    local statusTextSize = isMobile and math.min(14, baseWidth * 0.04) or math.min(19, baseWidth * 0.035)
+    statusLabel.Size = UDim2.new(1, -30, 0, math.max(25, statusTextSize + 10))
+    statusLabel.Position = UDim2.new(0, 15, 0, 15 + titleLabel.Size.Y.Offset + welcomeLabel.Size.Y.Offset + 10)
+    statusLabel.BackgroundTransparency = 1
+    statusLabel.Text = "正在初始化..."
+    statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    statusLabel.TextSize = statusTextSize
+    statusLabel.Font = Enum.Font.GothamMedium
+    statusLabel.TextXAlignment = Enum.TextXAlignment.Left
+    statusLabel.TextWrapped = true
+    statusLabel.ZIndex = 4
+    statusLabel.TextTransparency = 1
+    statusLabel.Parent = mainContainer
+    local progressBg = Instance.new("Frame")
+    progressBg.Size = UDim2.new(1, -30, 0, math.max(12, baseWidth * 0.03))
+    progressBg.Position = UDim2.new(0, 15, 0, 15 + titleLabel.Size.Y.Offset + welcomeLabel.Size.Y.Offset + statusLabel.Size.Y.Offset + 15)
+    progressBg.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    progressBg.BorderSizePixel = 0
+    progressBg.ZIndex = 4
+    progressBg.BackgroundTransparency = 1
+    progressBg.Parent = mainContainer
+    local progressBgCorner = Instance.new("UICorner")
+    progressBgCorner.CornerRadius = UDim.new(0, 8)
+    progressBgCorner.Parent = progressBg
+    local progressBgStroke = Instance.new("UIStroke")
+    progressBgStroke.Thickness = 0.5
+    progressBgStroke.Color = Color3.fromRGB(150, 150, 150)
+    progressBgStroke.Transparency = 0.3
+    progressBgStroke.Parent = progressBg
+    local progressFill = Instance.new("Frame")
+    progressFill.Size = UDim2.new(0, 0, 1, 0)
+    progressFill.Position = UDim2.new(0, 0, 0, 0)
+    progressFill.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+    progressFill.BorderSizePixel = 0
+    progressFill.ZIndex = 5
+    progressFill.Parent = progressBg
+    local progressFillCorner = Instance.new("UICorner")
+    progressFillCorner.CornerRadius = UDim.new(0, 8)
+    progressFillCorner.Parent = progressFill
+    local progressGradient = Instance.new("UIGradient")
+    progressGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(180, 180, 180)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(220, 220, 220)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 200, 200))
+    }
+    progressGradient.Parent = progressFill
+    local progressGlow = Instance.new("UIStroke")
+    progressGlow.Thickness = 0.5
+    progressGlow.Color = Color3.fromRGB(255, 255, 255)
+    progressGlow.Transparency = 0.5
+    progressGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    progressGlow.Parent = progressFill
+    spawn(function()
+        while progressFill.Parent do
+            local glowInfo = TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, 0, true)
+            local glowTween = TweenService:Create(progressGlow, glowInfo, {
+                Transparency = 0.2,
+                Thickness = 1
+            })
+            glowTween:Play()
+            wait(1.5)
+        end
+    end)
+    local progressText = Instance.new("TextLabel")
+    local progressTextSize = isMobile and math.min(14, baseWidth * 0.04) or math.min(18, baseWidth * 0.032)
+    progressText.Size = UDim2.new(1, -30, 0, math.max(20, progressTextSize + 5))
+    progressText.Position = UDim2.new(0, 15, 0, 15 + titleLabel.Size.Y.Offset + welcomeLabel.Size.Y.Offset + statusLabel.Size.Y.Offset + progressBg.Size.Y.Offset + 20)
+    progressText.BackgroundTransparency = 1
+    progressText.Text = "0%"
+    progressText.TextColor3 = Color3.fromRGB(200, 200, 200)
+    progressText.TextSize = progressTextSize
+    progressText.Font = Enum.Font.GothamBold
+    progressText.TextXAlignment = Enum.TextXAlignment.Center
+    progressText.ZIndex = 4
+    progressText.TextTransparency = 1 
+    progressText.Parent = mainContainer
+    for i = 1, 12 do
+        createParticle(mainContainer)
+    end
+    spawn(function()
+        wait(0.1)
+
+        local slideInInfo = TweenInfo.new(1.0, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+        local slideInTween = TweenService:Create(mainContainer, slideInInfo, {
+            Position = UDim2.new(0.5, -baseWidth/2, 0.5, -baseHeight/2)
+        })
+        slideInTween:Play()
+        wait(0.2)
+        local titleFadeInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        TweenService:Create(titleLabel, titleFadeInfo, {TextTransparency = 0}):Play()
+        wait(0.15)
+        TweenService:Create(welcomeLabel, titleFadeInfo, {TextTransparency = 0}):Play()
+        wait(0.15)
+        TweenService:Create(statusLabel, titleFadeInfo, {TextTransparency = 0}):Play()
+        TweenService:Create(progressBg, titleFadeInfo, {BackgroundTransparency = 0}):Play()
+        TweenService:Create(progressText, titleFadeInfo, {TextTransparency = 0}):Play()
+    end)
+    spawn(function()
+        wait(0.6)
+        for i, step in ipairs(LoadingSteps) do
+            statusLabel.Text = step.text
+            progressText.Text = step.progress.. "%"
+            local progressInfo = TweenInfo.new(0.8, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+            local progressTween = TweenService:Create(progressFill, progressInfo, {
+                Size = UDim2.new(step.progress/100, 0, 1, 0)
+            })
+            progressTween:Play()
+            wait(math.random(5, 8)/10)
+        end
+        local successInfo = TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        local successTween1 = TweenService:Create(mainStroke, successInfo, {
+            Color = Color3.fromRGB(255, 255, 255),
+            Thickness = 0.5
+        })
+        successTween1:Play()
+        local instantFadeOut = TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        TweenService:Create(titleLabel, instantFadeOut, {TextTransparency = 1}):Play()
+        TweenService:Create(welcomeLabel, instantFadeOut, {TextTransparency = 1}):Play()
+        TweenService:Create(statusLabel, instantFadeOut, {TextTransparency = 1}):Play()
+        TweenService:Create(progressText, instantFadeOut, {TextTransparency = 1}):Play()
+        TweenService:Create(progressBg, instantFadeOut, {BackgroundTransparency = 1}):Play()
+        titleLabel:Destroy()
+        welcomeLabel:Destroy()
+        statusLabel:Destroy()
+        progressText:Destroy()
+        progressBg:Destroy()
+        local minFinalWidth = 280
+        local maxFinalWidth = isMobile and 400 or 600
+        local finalWidth = math.max(minFinalWidth, math.min(viewportSize.X * (isMobile and 0.95 or 0.45), maxFinalWidth))
+        local minFinalHeight = 300
+        local maxFinalHeight = isMobile and 500 or 700
+        local finalHeight = math.max(minFinalHeight, math.min(viewportSize.Y * (isMobile and 0.75 or 0.75), maxFinalHeight))
+        local transformInfo = TweenInfo.new(1.0, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+        local transformTween = TweenService:Create(mainContainer, transformInfo, {
+            Size = UDim2.new(0, finalWidth, 0, finalHeight),
+            Position = UDim2.new(0.5, -finalWidth/2, 0.5, -finalHeight/2)
+        })
+        transformTween:Play()
+        if onComplete then
+            onComplete(screenGui, mainContainer, background)
+        end
+    end)
+end
+
+local function MakeAdvancedDraggable(topbar, frame)
+    local dragging = false
+    local dragInput
+    local dragStart
+    local startPos
+    local function BeginDrag(input)
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+        TweenService:Create(topbar, TweenInfo.new(0.2), {
+            BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        }):Play()
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+                TweenService:Create(topbar, TweenInfo.new(0.2), {
+                    BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+                }):Play()
+            end
+        end)
+    end
+    local function UpdateDrag(input)
+        if dragging then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end
+    topbar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or
+           (IsMobile() and input.UserInputType == Enum.UserInputType.Touch) then
+            BeginDrag(input)
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or
+                         input.UserInputType == Enum.UserInputType.Touch) then
+            UpdateDrag(input)
+        end
+    end)
+end
+local function CreateParticles(parent)
+    local particleContainer = Instance.new("Frame")
+    particleContainer.Name = "ParticleContainer"
+    particleContainer.BackgroundTransparency = 1
+    particleContainer.Size = UDim2.new(1, 0, 1, 0)
+    particleContainer.ZIndex = 0
+    particleContainer.Parent = parent
+    for i = 1, 20 do
+        local particle = Instance.new("Frame")
+        particle.Name = "Particle"
+        particle.BackgroundColor3 = Color3.fromHSV(math.random(), 0.8, 1)
+        particle.Size = UDim2.new(0, math.random(2, 5), 0, math.random(2, 5))
+        particle.Position = UDim2.new(0, math.random(-20, 200), 0, math.random(-20, 200))
+        particle.BorderSizePixel = 0
+        particle.ZIndex = 0
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(1, 0)
+        corner.Parent = particle
+        particle.Parent = particleContainer
+        spawn(function()
+            while particle and particle.Parent do
+                local duration = math.random(2, 5)
+                local targetPos = UDim2.new(
+                    0, math.random(-20, 200),
+                    0, math.random(-20, 200)
+                )
+                TweenService:Create(particle, TweenInfo.new(duration, Enum.EasingStyle.Linear), {
+                    Position = targetPos
+                }):Play()
+                wait(duration)
+            end
+        end)
+    end
+end
+
+local function showGameList(screenGui, mainContainer, background, list_game)
+    local mainStroke = mainContainer:FindFirstChild("UIStroke")
+    if mainStroke then
+        TweenService:Create(mainStroke, TweenInfo.new(0.5), {
+            Color = Color3.fromRGB(200, 200, 200),
+            Thickness = 0.5
+        }):Play()
+    end
+    
+    local viewportSize = workspace.CurrentCamera.ViewportSize
+    local isMobile = IsMobile()
+    
+    local titleBar = Instance.new("Frame")
+    titleBar.Size = UDim2.new(1, 0, 0, 55)
+    titleBar.Position = UDim2.new(0, 0, 0, 0)
+    titleBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    titleBar.BorderSizePixel = 0
+    titleBar.ZIndex = 4
+    titleBar.Parent = mainContainer
+
+    local titleCorner = Instance.new("UICorner")
+    titleCorner.CornerRadius = UDim.new(0, 28)
+    titleCorner.Parent = titleBar
+    local titleGradient = Instance.new("UIGradient")
+    titleGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 50)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(40, 40, 40)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(45, 45, 45))
+    }
+    titleGradient.Rotation = 90
+    titleGradient.Parent = titleBar
+    local titleStroke = Instance.new("UIStroke")
+    titleStroke.Thickness = 0.5
+    titleStroke.Color = Color3.fromRGB(200, 200, 200)
+    titleStroke.Transparency = 0.2
+    titleStroke.Parent = titleBar
+
+    -- Player Avatar
+    local avatarSize = isMobile and math.min(32, viewportSize.X * 0.08) or 40
+    local avatarFrame = Instance.new("Frame")
+    avatarFrame.Size = UDim2.new(0, avatarSize, 0, avatarSize)
+    avatarFrame.Position = UDim2.new(0, isMobile and 8 or 10, 0.5, -avatarSize/2)
+    avatarFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    avatarFrame.BorderSizePixel = 0
+    avatarFrame.ZIndex = 6
+    avatarFrame.Parent = titleBar
+    
+    local avatarCorner = Instance.new("UICorner")
+    avatarCorner.CornerRadius = UDim.new(0, avatarSize/2)
+    avatarCorner.Parent = avatarFrame
+    
+    local avatarStroke = Instance.new("UIStroke")
+    avatarStroke.Thickness = 0.5
+    avatarStroke.Color = Color3.fromRGB(200, 200, 200)
+    avatarStroke.Transparency = 0.3
+    avatarStroke.Parent = avatarFrame
+    
+    local avatarImage = Instance.new("ImageLabel")
+    avatarImage.Size = UDim2.new(1, -4, 1, -4)
+    avatarImage.Position = UDim2.new(0, 2, 0, 2)
+    avatarImage.BackgroundTransparency = 1
+    avatarImage.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=150&height=150&format=png"
+    avatarImage.ZIndex = 7
+    avatarImage.Parent = avatarFrame
+    
+    local avatarImageCorner = Instance.new("UICorner")
+    avatarImageCorner.CornerRadius = UDim.new(0, (avatarSize-4)/2)
+    avatarImageCorner.Parent = avatarImage
+
+    local titleLabel = Instance.new("TextLabel")
+    local titleBarTextSize = isMobile and math.min(16, viewportSize.X * 0.04) or math.min(20, viewportSize.X * 0.025)
+    titleLabel.Size = UDim2.new(0, 0, 1, 0)
+    titleLabel.Position = UDim2.new(0, isMobile and 50 or 60, 0, 0)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = "Atomic"
+    titleLabel.TextColor3 = Color3.fromRGB(240, 240, 240)
+    titleLabel.TextSize = titleBarTextSize
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.TextWrapped = false
+    titleLabel.ZIndex = 5
+    titleLabel.Parent = titleBar
+    
+    -- 免费版标签
+    local freeLabel = Instance.new("TextLabel")
+    local freeTextSize = isMobile and math.min(10, viewportSize.X * 0.03) or math.min(12, viewportSize.X * 0.018)
+    freeLabel.Size = UDim2.new(0, 0, 0, isMobile and 18 or 22)
+    freeLabel.Position = UDim2.new(0, 0, 0.5, -(isMobile and 9 or 11))
+    freeLabel.BackgroundColor3 = Color3.fromRGB(76, 175, 80)
+    freeLabel.Text = "免费版"
+    freeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    freeLabel.TextSize = freeTextSize
+    freeLabel.Font = Enum.Font.GothamBold
+    freeLabel.TextXAlignment = Enum.TextXAlignment.Center
+    freeLabel.ZIndex = 6
+    freeLabel.Parent = titleBar
+    
+    local freeCorner = Instance.new("UICorner")
+    freeCorner.CornerRadius = UDim.new(0, 8)
+    freeCorner.Parent = freeLabel
+    
+    local freePadding = Instance.new("UIPadding")
+    freePadding.PaddingLeft = UDim.new(0, isMobile and 6 or 8)
+    freePadding.PaddingRight = UDim.new(0, isMobile and 6 or 8)
+    freePadding.Parent = freeLabel
+    
+    -- 更新位置：让免费版标签紧跟在Atomic后面
+    spawn(function()
+        wait(0.1)
+        -- 使用TextBounds获取文本实际宽度
+        local titleTextBounds = titleLabel.TextBounds
+        local freeTextBounds = freeLabel.TextBounds
+        local avatarOffset = isMobile and 50 or 60
+        local spacing = isMobile and 6 or 8
+        freeLabel.Position = UDim2.new(0, avatarOffset + titleTextBounds.X + spacing, 0.5, -(isMobile and 9 or 11))
+        freeLabel.Size = UDim2.new(0, freeTextBounds.X + (isMobile and 12 or 16), 0, isMobile and 18 or 22)
+    end)
+    
+    local closeButton = Instance.new("TextButton")
+    closeButton.Size = isMobile and UDim2.new(0, 30, 0, 30) or UDim2.new(0, 35, 0, 35)
+    closeButton.Position = isMobile and UDim2.new(1, -40, 0, 8) or UDim2.new(1, -45, 0, 10)
+    closeButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    closeButton.Text = ""
+    closeButton.BorderSizePixel = 0
+    closeButton.ZIndex = 5
+    closeButton.Parent = titleBar
+
+    local closeCorner = Instance.new("UICorner")
+    closeCorner.CornerRadius = UDim.new(0, 12)
+    closeCorner.Parent = closeButton
+    local closeGradient = Instance.new("UIGradient")
+    closeGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 60, 60)),
+        ColorSequenceKeypoint.new(0.3, Color3.fromRGB(50, 50, 50)),
+        ColorSequenceKeypoint.new(0.7, Color3.fromRGB(45, 45, 45)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(55, 55, 55))
+    }
+    closeGradient.Rotation = 135
+    closeGradient.Parent = closeButton
+    local closeBorder = Instance.new("UIStroke")
+    closeBorder.Thickness = 0.5
+    closeBorder.Color = Color3.fromRGB(200, 200, 200)
+    closeBorder.Transparency = 0.3
+    closeBorder.Parent = closeButton
+    local innerShadow = Instance.new("Frame")
+    innerShadow.Size = UDim2.new(1, -4, 1, -4)
+    innerShadow.Position = UDim2.new(0, 2, 0, 2)
+    innerShadow.BackgroundTransparency = 1
+    innerShadow.ZIndex = 6
+    innerShadow.Parent = closeButton
+
+    local innerShadowStroke = Instance.new("UIStroke")
+    innerShadowStroke.Thickness = 0.5
+    innerShadowStroke.Color = Color3.fromRGB(0, 0, 0)
+    innerShadowStroke.Transparency = 0.6
+    innerShadowStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    innerShadowStroke.Parent = innerShadow
+
+    local innerShadowCorner = Instance.new("UICorner")
+    innerShadowCorner.CornerRadius = UDim.new(0, 10)
+    innerShadowCorner.Parent = innerShadow
+    local xIcon1 = Instance.new("Frame")
+    xIcon1.Size = UDim2.new(0, 14, 0, 2)
+    xIcon1.Position = UDim2.new(0.5, -7, 0.5, -1)
+    xIcon1.BackgroundColor3 = Color3.fromRGB(220, 220, 220)
+    xIcon1.BorderSizePixel = 0
+    xIcon1.Rotation = 45
+    xIcon1.ZIndex = 7
+    xIcon1.Parent = closeButton
+
+    local xCorner1 = Instance.new("UICorner")
+    xCorner1.CornerRadius = UDim.new(0, 1)
+    xCorner1.Parent = xIcon1
+
+    local xIcon2 = Instance.new("Frame")
+    xIcon2.Size = UDim2.new(0, 14, 0, 2)
+    xIcon2.Position = UDim2.new(0.5, -7, 0.5, -1)
+    xIcon2.BackgroundColor3 = Color3.fromRGB(220, 220, 220)
+    xIcon2.BorderSizePixel = 0
+    xIcon2.Rotation = -45
+    xIcon2.ZIndex = 7
+    xIcon2.Parent = closeButton
+
+    local xCorner2 = Instance.new("UICorner")
+    xCorner2.CornerRadius = UDim.new(0, 1)
+    xCorner2.Parent = xIcon2
+    local isPressed = false
+    closeButton.MouseButton1Down:Connect(function()
+        isPressed = true
+        local pressInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        TweenService:Create(closeButton, pressInfo, {
+            Size = UDim2.new(0, 32, 0, 32),
+            Position = UDim2.new(1, -43.5, 0, 11.5)
+        }):Play()
+    end)
+
+    closeButton.MouseButton1Up:Connect(function()
+        if isPressed then
+            isPressed = false
+            local releaseInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+            TweenService:Create(closeButton, releaseInfo, {
+                Size = UDim2.new(0, 35, 0, 35),
+                Position = UDim2.new(1, -45, 0, 10)
+            }):Play()
+        end
+    end)
+    local buttonContainer = Instance.new("Frame")
+    buttonContainer.Size = UDim2.new(1, -20, 0, 50)
+    buttonContainer.Position = UDim2.new(0, 10, 0, 65)
+    buttonContainer.BackgroundTransparency = 1
+    buttonContainer.ZIndex = 4
+    buttonContainer.Parent = mainContainer
+
+    local buttonNames = {"更新公告", "游戏列表", "开发人员"}
+    local buttons = {}
+    local currentPage = "游戏列表"
+
+    for i, buttonName in ipairs(buttonNames) do
+        local button = Instance.new("TextButton")
+        button.Size = UDim2.new(0.32, -5, 1, 0)
+        button.Position = UDim2.new((i-1) * 0.34, 0, 0, 0)
+        button.BackgroundColor3 = buttonName == "游戏列表" and Color3.fromRGB(80, 80, 80) or Color3.fromRGB(40, 40, 40)
+        button.Text = buttonName
+        button.TextColor3 = buttonName == "游戏列表" and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(255, 255, 255)
+        button.TextSize = isMobile and 16 or 20
+        button.Font = Enum.Font.GothamBold
+        button.TextStrokeTransparency = 0.3
+        button.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+        button.BorderSizePixel = 0
+        button.ZIndex = 5
+        button.Parent = buttonContainer
+
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0, 15)
+        corner.Parent = button
+
+        local gradient = Instance.new("UIGradient")
+        if buttonName == "游戏列表" then
+            gradient.Color = ColorSequence.new{
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 100, 100)),
+                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(80, 80, 80)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 70, 70))
+            }
+        else
+            gradient.Color = ColorSequence.new{
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 50)),
+                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(40, 40, 40)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 35, 35))
+            }
+        end
+        gradient.Rotation = 90
+        gradient.Parent = button
+
+        local stroke = Instance.new("UIStroke")
+        stroke.Thickness = 0.5
+        stroke.Color = buttonName == "游戏列表" and Color3.fromRGB(200, 200, 200) or Color3.fromRGB(150, 150, 150)
+        stroke.Transparency = 0.2
+        stroke.Parent = button
+        local innerShadow = Instance.new("Frame")
+        innerShadow.Size = UDim2.new(1, -4, 1, -4)
+        innerShadow.Position = UDim2.new(0, 2, 0, 2)
+        innerShadow.BackgroundTransparency = 1
+        innerShadow.ZIndex = 6
+        innerShadow.Parent = button
+
+        local innerStroke = Instance.new("UIStroke")
+        innerStroke.Thickness = 0.5
+        innerStroke.Color = Color3.fromRGB(255, 255, 255)
+        innerStroke.Transparency = buttonName == "游戏列表" and 0.7 or 0.9
+        innerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+        innerStroke.Parent = innerShadow
+
+        local innerCorner = Instance.new("UICorner")
+        innerCorner.CornerRadius = UDim.new(0, 13)
+        innerCorner.Parent = innerShadow
+
+        buttons[buttonName] = {button = button, gradient = gradient, stroke = stroke, innerStroke = innerStroke}
+    end
+
+    local contentFrame = Instance.new("Frame")
+    contentFrame.Size = UDim2.new(1, -20, 1, -85)
+    contentFrame.Position = UDim2.new(0, 10, 0, 75)
+    contentFrame.BackgroundTransparency = 1
+    contentFrame.ZIndex = 4
+    contentFrame.Parent = mainContainer
+
+    local welcomeText = Instance.new("TextLabel")
+    welcomeText.Size = UDim2.new(1, 0, 0, 50)
+    welcomeText.Position = UDim2.new(0, 0, 0, 10)
+    welcomeText.BackgroundTransparency = 1
+    welcomeText.Text = ""
+    welcomeText.TextColor3 = Color3.fromRGB(200, 200, 200)
+    welcomeText.TextSize = 28
+    welcomeText.Font = Enum.Font.GothamBold
+    welcomeText.TextXAlignment = Enum.TextXAlignment.Center
+    welcomeText.ZIndex = 5
+    welcomeText.Parent = contentFrame
+
+    local welcomeTextGradient = Instance.new("UIGradient")
+    welcomeTextGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 220, 220)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180, 180, 180)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 150, 150))
+    }
+    welcomeTextGradient.Parent = welcomeText
+    local textShadow = Instance.new("TextLabel")
+    textShadow.Size = welcomeText.Size
+    textShadow.Position = UDim2.new(0, 2, 0, 12)
+    textShadow.BackgroundTransparency = 1
+    textShadow.Text = welcomeText.Text
+    textShadow.TextColor3 = Color3.fromRGB(0, 0, 0)
+    textShadow.TextTransparency = 0.7
+    textShadow.TextSize = welcomeText.TextSize
+    textShadow.Font = welcomeText.Font
+    textShadow.TextXAlignment = welcomeText.TextXAlignment
+    textShadow.ZIndex = 4
+    textShadow.Parent = contentFrame
+
+    local statusText = Instance.new("TextLabel")
+    statusText.Size = UDim2.new(1, 0, 0, 35)
+    statusText.Position = UDim2.new(0, 0, 0, 65)
+    statusText.BackgroundTransparency = 1
+    statusText.Text = ""
+    statusText.TextColor3 = Color3.fromRGB(180, 180, 180)
+    statusText.TextSize = 18
+    statusText.Font = Enum.Font.GothamMedium
+    statusText.TextXAlignment = Enum.TextXAlignment.Center
+    statusText.ZIndex = 5
+    statusText.Parent = contentFrame
+
+    local statusGradient = Instance.new("UIGradient")
+    statusGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 200, 200)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(160, 160, 160))
+    }
+    statusGradient.Parent = statusText
+    local scrollFrame = Instance.new("ScrollingFrame")
+    scrollFrame.Size = UDim2.new(1, -10, 1, -80)
+    scrollFrame.Position = UDim2.new(0, 10, 0, 75)
+    scrollFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    scrollFrame.BackgroundTransparency = 0.2
+    scrollFrame.BorderSizePixel = 0
+    scrollFrame.ScrollBarThickness = 10
+    scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(200, 200, 200)
+    scrollFrame.ZIndex = 5
+    scrollFrame.Parent = contentFrame
+
+    local scrollCorner = Instance.new("UICorner")
+    scrollCorner.CornerRadius = UDim.new(0, 15)
+    scrollCorner.Parent = scrollFrame
+    local scrollStroke = Instance.new("UIStroke")
+    scrollStroke.Thickness = 0.5
+    scrollStroke.Color = Color3.fromRGB(150, 150, 150)
+    scrollStroke.Transparency = 0.3
+    scrollStroke.Parent = scrollFrame
+    local scrollGradient = Instance.new("UIGradient")
+    scrollGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 25, 25)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(20, 20, 20)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(22, 22, 22))
+    }
+    scrollGradient.Rotation = 90
+    scrollGradient.Parent = scrollFrame
+
+    local listLayout = Instance.new("UIListLayout")
+    listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    listLayout.Padding = UDim.new(0, 5)
+    listLayout.Parent = scrollFrame
+
+    local listPadding = Instance.new("UIPadding")
+    listPadding.PaddingTop = UDim.new(0, 10)
+    listPadding.PaddingBottom = UDim.new(0, 10)
+    listPadding.PaddingLeft = UDim.new(0, 10)
+    listPadding.PaddingRight = UDim.new(0, 10)
+    listPadding.Parent = scrollFrame
+    for i, gameName in ipairs(list_game) do
+        local gameItem = Instance.new("Frame")
+        gameItem.Size = isMobile and UDim2.new(1, -20, 0, 40) or UDim2.new(1, -20, 0, 45)
+        gameItem.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+        gameItem.BackgroundTransparency = 0.1
+        gameItem.BorderSizePixel = 0
+        gameItem.ZIndex = 6
+        gameItem.Parent = scrollFrame
+
+        local itemCorner = Instance.new("UICorner")
+        itemCorner.CornerRadius = UDim.new(0, 12)
+        itemCorner.Parent = gameItem
+        local itemGradient = Instance.new("UIGradient")
+        itemGradient.Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 40)),
+            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(35, 35, 35)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(38, 38, 38))
+        }
+        itemGradient.Rotation = 90
+        itemGradient.Parent = gameItem
+        local itemStroke = Instance.new("UIStroke")
+        itemStroke.Thickness = 0.5
+        itemStroke.Color = Color3.fromRGB(200, 200, 200)
+        itemStroke.Transparency = 0.4
+        itemStroke.Parent = gameItem
+        
+        -- Logo in top right corner
+        local logoImage = Instance.new("ImageLabel")
+        logoImage.Size = UDim2.new(0, 24, 0, 24)
+        logoImage.Position = UDim2.new(1, -30, 0, 8)
+        logoImage.BackgroundTransparency = 1
+        logoImage.Image = "rbxassetid://18374456807"
+        logoImage.ZIndex = 8
+        logoImage.Parent = gameItem
+        local gameIcon = Instance.new("Frame")
+        gameIcon.Size = UDim2.new(0, 8, 0, 8)
+        gameIcon.Position = UDim2.new(0, 20, 0.5, -4)
+        gameIcon.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+        gameIcon.BorderSizePixel = 0
+        gameIcon.ZIndex = 7
+        gameIcon.Parent = gameItem
+
+        local iconCorner = Instance.new("UICorner")
+        iconCorner.CornerRadius = UDim.new(0.5, 0)
+        iconCorner.Parent = gameIcon
+
+        local gameButton = Instance.new("TextButton")
+        gameButton.Size = UDim2.new(1, -80, 1, 0)
+        gameButton.Position = UDim2.new(0, 40, 0, 0)
+        gameButton.BackgroundTransparency = 1
+        gameButton.TextTransparency = 1
+        gameButton.Text = gameName
+        gameButton.TextColor3 = Color3.fromRGB(230, 230, 230)
+        gameButton.TextSize = isMobile and 14 or 16
+        gameButton.Font = Enum.Font.GothamMedium
+        gameButton.TextXAlignment = Enum.TextXAlignment.Left
+        gameButton.ZIndex = 7
+        gameButton.Parent = gameItem
+        local statusDot = Instance.new("Frame")
+        statusDot.Size = UDim2.new(0, 8, 0, 8)
+        statusDot.Position = UDim2.new(1, -60, 0.5, -4)
+        statusDot.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+        statusDot.BorderSizePixel = 0
+        statusDot.ZIndex = 7
+        statusDot.Parent = gameItem
+
+        local dotCorner = Instance.new("UICorner")
+        dotCorner.CornerRadius = UDim.new(0.5, 0)
+        dotCorner.Parent = statusDot
+        local dotGlow = Instance.new("UIStroke")
+        dotGlow.Thickness = 0.5
+        dotGlow.Color = Color3.fromRGB(255, 255, 255)
+        dotGlow.Transparency = 0.5
+        dotGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+        dotGlow.Parent = statusDot
+
+        gameButton.Activated:Connect(function()
+            local closeInfo = TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In)
+            local scaleTween = TweenService:Create(mainContainer, closeInfo, {
+                Size = UDim2.new(0, 0, 0, 0),
+                Position = UDim2.new(0.5, 0, 0.5, 0)
+            })
+            local backgroundTween = TweenService:Create(background, closeInfo, {
+                BackgroundTransparency = 1
+            })
+            scaleTween:Play()
+            backgroundTween:Play()
+            scaleTween.Completed:Connect(function()
+                if screenGui and screenGui.Parent then
+                    screenGui:Destroy()
+                end
+            end)
+            spawn(function()
+                wait(0.5)
+                if screenGui and screenGui.Parent then
+                    screenGui:Destroy()
+                end
+            end)
+            loadstring(game:HttpGet('https://raw.githubusercontent.com/123fa98/Xi_Pro/refs/heads/main/'..gameName..".lua"))()
+        end)
+
+        gameItem.MouseEnter:Connect(function()
+            local hoverInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+            TweenService:Create(gameItem, hoverInfo, {
+                BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+            }):Play()
+            TweenService:Create(itemStroke, hoverInfo, {
+                Transparency = 0.1,
+                Color = Color3.fromRGB(255, 255, 255),
+                Thickness = 0.5
+            }):Play()
+            TweenService:Create(gameButton, hoverInfo, {
+                TextColor3 = Color3.fromRGB(255, 255, 255)
+            }):Play()
+        end)
+
+        gameItem.MouseLeave:Connect(function()
+            local leaveInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+            TweenService:Create(gameItem, leaveInfo, {
+                BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+            }):Play()
+            TweenService:Create(itemStroke, leaveInfo, {
+                Transparency = 0.4,
+                Color = Color3.fromRGB(200, 200, 200),
+                Thickness = 0.5
+            }):Play()
+            TweenService:Create(gameButton, leaveInfo, {
+                TextColor3 = Color3.fromRGB(230, 230, 230)
+            }):Play()
+        end)
+    end
+
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 20)
+
+    spawn(function()
+        titleBar.BackgroundTransparency = 1
+        titleLabel.TextTransparency = 1
+        freeLabel.BackgroundTransparency = 1
+        freeLabel.TextTransparency = 1
+        closeButton.BackgroundTransparency = 1
+        closeButton.TextTransparency = 1
+        welcomeText.TextTransparency = 1
+        statusText.TextTransparency = 1
+        scrollFrame.BackgroundTransparency = 1
+
+        for _, child in ipairs(scrollFrame:GetChildren()) do
+            if child:IsA("Frame") and child:FindFirstChild("TextButton") then
+                child.BackgroundTransparency = 1
+                child:FindFirstChild("TextButton").TextTransparency = 1
+            end
+        end
+
+        wait(0.1)
+        local fastFadeInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        TweenService:Create(titleBar, fastFadeInfo, {BackgroundTransparency = 0}):Play()
+        TweenService:Create(titleLabel, fastFadeInfo, {TextTransparency = 0}):Play()
+        TweenService:Create(freeLabel, fastFadeInfo, {BackgroundTransparency = 0, TextTransparency = 0}):Play()
+        TweenService:Create(closeButton, fastFadeInfo, {BackgroundTransparency = 0, TextTransparency = 0}):Play()
+        wait(0.1)
+        TweenService:Create(welcomeText, fastFadeInfo, {TextTransparency = 0}):Play()
+        TweenService:Create(statusText, fastFadeInfo, {TextTransparency = 0}):Play()
+        TweenService:Create(scrollFrame, fastFadeInfo, {BackgroundTransparency = 0.2}):Play()
+
+        wait(0.15)
+        for i, child in ipairs(scrollFrame:GetChildren()) do
+            if child:IsA("Frame") and child:FindFirstChild("TextButton") then
+                spawn(function()
+                    wait(i * 0.03)
+                    local itemFadeInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                    TweenService:Create(child, itemFadeInfo, {BackgroundTransparency = 0.1}):Play()
+                    TweenService:Create(child:FindFirstChild("TextButton"), itemFadeInfo, {TextTransparency = 0}):Play()
+                end)
+            end
+        end
+    end)
+    closeButton.MouseButton1Click:Connect(function()
+        local closeInfo = TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In)
+        local scaleTween = TweenService:Create(mainContainer, closeInfo, {
+            Size = UDim2.new(0, 0, 0, 0),
+            Position = UDim2.new(0.5, 0, 0.5, 0)
+        })
+        local backgroundTween = TweenService:Create(background, closeInfo, {
+            BackgroundTransparency = 1
+        })
+        scaleTween:Play()
+        backgroundTween:Play()
+        scaleTween.Completed:Connect(function()
+            if screenGui and screenGui.Parent then
+                screenGui:Destroy()
+            end
+        end)
+        spawn(function()
+            wait(0.5)
+            if screenGui and screenGui.Parent then
+                screenGui:Destroy()
+            end
+        end)
+    end)
+
+    closeButton.MouseEnter:Connect(function()
+        local hoverInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        TweenService:Create(closeButton, hoverInfo, {
+            BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+        }):Play()
+        TweenService:Create(closeGradient, hoverInfo, {
+            Color = ColorSequence.new{
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(90, 90, 90)),
+                ColorSequenceKeypoint.new(0.3, Color3.fromRGB(80, 80, 80)),
+                ColorSequenceKeypoint.new(0.7, Color3.fromRGB(70, 70, 70)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(85, 85, 85))
+            }
+        }):Play()
+        TweenService:Create(closeBorder, hoverInfo, {
+            Color = Color3.fromRGB(255, 255, 255),
+            Transparency = 0.1
+        }):Play()
+        TweenService:Create(xIcon1, hoverInfo, {
+            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+            Size = UDim2.new(0, 16, 0, 2.5)
+        }):Play()
+        TweenService:Create(xIcon2, hoverInfo, {
+            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+            Size = UDim2.new(0, 16, 0, 2.5)
+        }):Play()
+    end)
+
+    closeButton.MouseLeave:Connect(function()
+        local leaveInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        TweenService:Create(closeButton, leaveInfo, {
+            BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        }):Play()
+        TweenService:Create(closeGradient, leaveInfo, {
+            Color = ColorSequence.new{
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 60, 60)),
+                ColorSequenceKeypoint.new(0.3, Color3.fromRGB(50, 50, 50)),
+                ColorSequenceKeypoint.new(0.7, Color3.fromRGB(45, 45, 45)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(55, 55, 55))
+            }
+        }):Play()
+        TweenService:Create(closeBorder, leaveInfo, {
+            Color = Color3.fromRGB(200, 200, 200),
+            Transparency = 0.3
+        }):Play()
+        TweenService:Create(xIcon1, leaveInfo, {
+            BackgroundColor3 = Color3.fromRGB(220, 220, 220),
+            Size = UDim2.new(0, 14, 0, 2)
+        }):Play()
+        TweenService:Create(xIcon2, leaveInfo, {
+            BackgroundColor3 = Color3.fromRGB(220, 220, 220),
+            Size = UDim2.new(0, 14, 0, 2)
+        }):Play()
+    end)
+    local function switchPage(pageName)
+        currentPage = pageName
+
+        for name, buttonData in pairs(buttons) do
+            local isActive = (name == pageName)
+            local button = buttonData.button
+            local gradient = buttonData.gradient
+            local stroke = buttonData.stroke
+            local innerStroke = buttonData.innerStroke
+
+            TweenService:Create(button, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                BackgroundColor3 = isActive and Color3.fromRGB(80, 80, 80) or Color3.fromRGB(40, 40, 40),
+                TextColor3 = Color3.fromRGB(255, 255, 255)
+            }):Play()
+
+            TweenService:Create(stroke, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Color = isActive and Color3.fromRGB(200, 200, 200) or Color3.fromRGB(150, 150, 150),
+                Transparency = isActive and 0.2 or 0.4
+            }):Play()
+
+            TweenService:Create(innerStroke, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Transparency = isActive and 0.7 or 0.9
+            }):Play()
+
+            if isActive then
+                gradient.Color = ColorSequence.new{
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 100, 100)),
+                    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(80, 80, 80)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 70, 70))
+                }
+            else
+                gradient.Color = ColorSequence.new{
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 50)),
+                    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(40, 40, 40)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 35, 35))
+                }
+            end
+        end
+        local announcementContainer = contentFrame:FindFirstChild("AnnouncementContainer")
+        local developerText = contentFrame:FindFirstChild("DeveloperText")
+        if announcementContainer then announcementContainer.Visible = false end
+        if developerText then developerText.Visible = false end
+        if pageName == "游戏列表" then
+            local viewportSize = workspace.CurrentCamera.ViewportSize
+            local isMobile = IsMobile()
+            local minWidth = 280
+            local maxWidth = isMobile and 400 or 600
+            local defaultWidth = math.max(minWidth, math.min(viewportSize.X * (isMobile and 0.95 or 0.45), maxWidth))
+            local minHeight = 300
+            local maxHeight = isMobile and 500 or 700
+            local defaultHeight = math.max(minHeight, math.min(viewportSize.Y * (isMobile and 0.75 or 0.75), maxHeight))
+            local defaultSize = UDim2.new(0, defaultWidth, 0, defaultHeight)
+            local defaultPosition = UDim2.new(0.5, -defaultWidth/2, 0.5, -defaultHeight/2)
+
+            mainContainer:TweenSize(defaultSize, "Out", "Quad", 0.3, true)
+            mainContainer:TweenPosition(defaultPosition, "Out", "Quad", 0.3, true)
+
+            welcomeText.Text = ""
+            statusText.Text = ""
+            scrollFrame.Visible = true
+        elseif pageName == "更新公告" then
+            local viewportSize = workspace.CurrentCamera.ViewportSize
+            local isMobile = IsMobile()
+            local minWidth = 280
+            local maxWidth = isMobile and 400 or 600
+            local defaultWidth = math.max(minWidth, math.min(viewportSize.X * (isMobile and 0.95 or 0.45), maxWidth))
+            local minHeight = 300
+            local maxHeight = isMobile and 500 or 700
+            local defaultHeight = math.max(minHeight, math.min(viewportSize.Y * (isMobile and 0.75 or 0.75), maxHeight))
+            local defaultSize = UDim2.new(0, defaultWidth, 0, defaultHeight)
+            local defaultPosition = UDim2.new(0.5, -defaultWidth/2, 0.5, -defaultHeight/2)
+
+            mainContainer:TweenSize(defaultSize, "Out", "Quad", 0.3, true)
+            mainContainer:TweenPosition(defaultPosition, "Out", "Quad", 0.3, true)
+
+            welcomeText.Text = ""
+            statusText.Text = ""
+            scrollFrame.Visible = false
+            if not announcementContainer then
+                local updateConfig = {
+                    updateItems = Notice
+                }
+                local announcementContainer = Instance.new("ScrollingFrame")
+                announcementContainer.Name = "AnnouncementContainer"
+                announcementContainer.Size = UDim2.new(1, -30, 1, -80)
+                announcementContainer.Position = UDim2.new(0, 15, 0, 65)
+                announcementContainer.BackgroundTransparency = 1
+                announcementContainer.BorderSizePixel = 0
+                announcementContainer.ScrollBarThickness = 6
+                announcementContainer.ScrollBarImageColor3 = Color3.fromRGB(200, 200, 200)
+                announcementContainer.ZIndex = 5
+                announcementContainer.Parent = contentFrame
+                local startY = 5
+                local itemSpacing = 8
+                local dateLabelHeight = 22
+                local dateLabelTopPadding = 8
+                local descLabelTopPadding = 28
+                local descLabelBottomPadding = 10
+                local minItemHeight = 60
+                local viewportSize = workspace.CurrentCamera.ViewportSize
+                local isMobile = IsMobile()
+                local dateTextSize = isMobile and 14 or 16
+                local descTextSize = isMobile and 12 or 14
+                
+                -- 先创建所有条目，然后计算动态高度
+                local itemFrames = {}
+                local itemHeights = {}
+                
+                for i, item in ipairs(updateConfig.updateItems) do
+                    local contentFrame = Instance.new("Frame")
+                    contentFrame.Size = UDim2.new(1, -50, 0, minItemHeight)
+                    contentFrame.Position = UDim2.new(0, 40, 0, 0)
+                    contentFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+                    contentFrame.BackgroundTransparency = 0.3
+                    contentFrame.BorderSizePixel = 0
+                    contentFrame.ZIndex = 6
+                    contentFrame.Parent = announcementContainer
+
+                    local contentCorner = Instance.new("UICorner")
+                    contentCorner.CornerRadius = UDim.new(0, 8)
+                    contentCorner.Parent = contentFrame
+
+                    local dateLabel = Instance.new("TextLabel")
+                    dateLabel.Size = UDim2.new(1, -20, 0, dateLabelHeight)
+                    dateLabel.Position = UDim2.new(0, 10, 0, dateLabelTopPadding)
+                    dateLabel.BackgroundTransparency = 1
+                    dateLabel.Text = item.date
+                    dateLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+                    dateLabel.TextSize = dateTextSize
+                    dateLabel.Font = Enum.Font.GothamBold
+                    dateLabel.TextXAlignment = Enum.TextXAlignment.Left
+                    dateLabel.TextWrapped = false
+                    dateLabel.ZIndex = 7
+                    dateLabel.Parent = contentFrame
+
+                    local descLabel = Instance.new("TextLabel")
+                    -- 先设置一个足够大的高度，让文字能够正确渲染和计算
+                    descLabel.Size = UDim2.new(1, -20, 0, 1000)
+                    descLabel.Position = UDim2.new(0, 10, 0, descLabelTopPadding)
+                    descLabel.BackgroundTransparency = 1
+                    descLabel.Text = item.desc
+                    descLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+                    descLabel.TextSize = descTextSize
+                    descLabel.Font = Enum.Font.Gotham
+                    descLabel.TextXAlignment = Enum.TextXAlignment.Left
+                    descLabel.TextYAlignment = Enum.TextYAlignment.Top
+                    descLabel.TextWrapped = true
+                    descLabel.ZIndex = 7
+                    descLabel.Parent = contentFrame
+                    
+                    table.insert(itemFrames, {
+                        frame = contentFrame,
+                        dateLabel = dateLabel,
+                        descLabel = descLabel,
+                        item = item
+                    })
+                end
+                
+                -- 等待一帧让文字渲染，然后计算实际高度
+                spawn(function()
+                    wait(0.3) -- 增加等待时间，确保容器和文字完全渲染
+                    local currentY = startY
+                    local maxTotalHeight = 0
+                    
+                    for i, itemData in ipairs(itemFrames) do
+                        local descLabel = itemData.descLabel
+                        local frame = itemData.frame
+                        local itemDesc = itemData.item.desc
+                        
+                        -- 等待文字渲染完成
+                        wait(0.1)
+                        
+                        -- 获取容器实际宽度
+                        local containerWidth = announcementContainer.AbsoluteSize.X
+                        if containerWidth < 1 then
+                            -- 如果容器宽度还没计算出来，使用父容器的宽度估算
+                            local parentWidth = contentFrame.AbsoluteSize.X
+                            containerWidth = parentWidth > 0 and (parentWidth - 70) or 300
+                        else
+                            containerWidth = containerWidth - 70
+                        end
+                        
+                        -- 获取文字实际高度
+                        local actualDescHeight = math.ceil(descLabel.TextBounds.Y)
+                        
+                        -- 如果 TextBounds 计算不正确，使用估算方法
+                        if actualDescHeight < descTextSize or actualDescHeight > 800 then
+                            -- 估算每行能容纳的字符数（中文字符大约占字体大小的宽度）
+                            local charWidth = descTextSize * 0.8 -- 中文字符宽度估算
+                            local charsPerLine = math.max(10, math.floor(containerWidth / charWidth))
+                            local textLength = #itemDesc
+                            local estimatedLines = math.max(1, math.ceil(textLength / charsPerLine))
+                            actualDescHeight = estimatedLines * (descTextSize + 4) + 4
+                        end
+                        
+                        -- 确保最小高度
+                        actualDescHeight = math.max(descTextSize + 4, actualDescHeight)
+                        
+                        -- 计算总高度：描述标签顶部位置 + 描述文字高度 + 底部间距
+                        local calculatedHeight = math.max(minItemHeight, descLabelTopPadding + actualDescHeight + descLabelBottomPadding)
+                        
+                        -- 更新容器高度和位置
+                        frame.Size = UDim2.new(1, -50, 0, calculatedHeight)
+                        frame.Position = UDim2.new(0, 40, 0, currentY)
+                        
+                        -- 更新描述标签高度（确保文字能完整显示）
+                        descLabel.Size = UDim2.new(1, -20, 0, actualDescHeight)
+                        
+                        local timelineNode = Instance.new("Frame")
+                        timelineNode.Size = UDim2.new(0, 14, 0, 14)
+                        timelineNode.Position = UDim2.new(0, 14, 0, currentY + dateLabelTopPadding + dateLabelHeight/2 - 7)
+                        timelineNode.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+                        timelineNode.BorderSizePixel = 0
+                        timelineNode.ZIndex = 5
+                        timelineNode.Parent = announcementContainer
+
+                        local nodeCorner = Instance.new("UICorner")
+                        nodeCorner.CornerRadius = UDim.new(0.5, 0)
+                        nodeCorner.Parent = timelineNode
+                        
+                        local nodeInner = Instance.new("Frame")
+                        nodeInner.Size = UDim2.new(0, 6, 0, 6)
+                        nodeInner.Position = UDim2.new(0.5, -3, 0.5, -3)
+                        nodeInner.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                        nodeInner.BorderSizePixel = 0
+                        nodeInner.ZIndex = 6
+                        nodeInner.Parent = timelineNode
+
+                        local innerCorner = Instance.new("UICorner")
+                        innerCorner.CornerRadius = UDim.new(0.5, 0)
+                        innerCorner.Parent = nodeInner
+                        
+                        currentY = currentY + calculatedHeight + itemSpacing
+                        maxTotalHeight = currentY
+                    end
+                    
+                    -- 创建时间线
+                    local timelineLine = Instance.new("Frame")
+                    timelineLine.Size = UDim2.new(0, 3, 0, math.max(0, maxTotalHeight - startY - 10))
+                    timelineLine.Position = UDim2.new(0, 20, 0, startY + 10)
+                    timelineLine.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+                    timelineLine.BorderSizePixel = 0
+                    timelineLine.ZIndex = 4
+                    timelineLine.Parent = announcementContainer
+                    
+                    local lineGradient = Instance.new("UIGradient")
+                    lineGradient.Color = ColorSequence.new{
+                        ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 200, 200)),
+                        ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 150, 150))
+                    }
+                    lineGradient.Rotation = 90
+                    lineGradient.Parent = timelineLine
+                    
+                    announcementContainer.CanvasSize = UDim2.new(0, 0, 0, maxTotalHeight + 20)
+                end)
+            end
+            announcementContainer.Visible = true
+        elseif pageName == "开发人员" then
+            local viewportSize = workspace.CurrentCamera.ViewportSize
+            local isMobile = IsMobile()
+            local minWidth = 280
+            local maxWidth = isMobile and 400 or 600
+            local defaultWidth = math.max(minWidth, math.min(viewportSize.X * (isMobile and 0.95 or 0.45), maxWidth))
+            local minHeight = 300
+            local maxHeight = isMobile and 500 or 700
+            local defaultHeight = math.max(minHeight, math.min(viewportSize.Y * (isMobile and 0.75 or 0.75), maxHeight))
+            local defaultSize = UDim2.new(0, defaultWidth, 0, defaultHeight)
+            local defaultPosition = UDim2.new(0.5, -defaultWidth/2, 0.5, -defaultHeight/2)
+
+            mainContainer:TweenSize(defaultSize, "Out", "Quad", 0.3, true)
+            mainContainer:TweenPosition(defaultPosition, "Out", "Quad", 0.3, true)
+
+            welcomeText.Text = ""
+            statusText.Text = ""
+            scrollFrame.Visible = false
+            if not developerText then
+                developerText = Instance.new("ScrollingFrame")
+                developerText.Name = "DeveloperText"
+                developerText.Size = UDim2.new(1, -30, 1, -100)
+                developerText.Position = UDim2.new(0, 15, 0, 85)
+                developerText.BackgroundTransparency = 1
+                developerText.BorderSizePixel = 0
+                developerText.ScrollBarThickness = 6
+                developerText.ScrollBarImageColor3 = Color3.fromRGB(200, 200, 200)
+                developerText.ZIndex = 5
+                developerText.Parent = contentFrame
+
+                local cardHeight = isMobile and 110 or 130
+                local cardSpacing = isMobile and 15 or 18
+                local cardPadding = 12
+                
+                -- 使用单列布局，一行一行显示
+                for i, dev in ipairs(Developers) do
+                    local yPos = cardPadding + (i - 1) * (cardHeight + cardSpacing)
+
+                    local card = Instance.new("Frame")
+                    card.Size = UDim2.new(1, -cardPadding * 2, 0, cardHeight)
+                    card.Position = UDim2.new(0, cardPadding, 0, yPos)
+                    card.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+                    card.BorderSizePixel = 0
+                    card.ZIndex = 6
+                    card.Parent = developerText
+
+                    local cardCorner = Instance.new("UICorner")
+                    cardCorner.CornerRadius = UDim.new(0, 12)
+                    cardCorner.Parent = card
+                    
+                    -- 渐变背景
+                    local cardGradient = Instance.new("UIGradient")
+                    cardGradient.Color = ColorSequence.new{
+                        ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 35)),
+                        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(30, 30, 30)),
+                        ColorSequenceKeypoint.new(1, Color3.fromRGB(32, 32, 32))
+                    }
+                    cardGradient.Rotation = 90
+                    cardGradient.Parent = card
+                    
+                    -- 主边框
+                    local cardStroke = Instance.new("UIStroke")
+                    cardStroke.Thickness = 0.5
+                    cardStroke.Color = Color3.fromRGB(200, 200, 200)
+                    cardStroke.Transparency = 0.3
+                    cardStroke.Parent = card
+                    
+                    -- 内阴影效果
+                    local innerShadow = Instance.new("Frame")
+                    innerShadow.Size = UDim2.new(1, -2, 1, -2)
+                    innerShadow.Position = UDim2.new(0, 1, 0, 1)
+                    innerShadow.BackgroundTransparency = 1
+                    innerShadow.ZIndex = 8
+                    innerShadow.Parent = card
+                    
+                    local innerShadowStroke = Instance.new("UIStroke")
+                    innerShadowStroke.Thickness = 1
+                    innerShadowStroke.Color = Color3.fromRGB(0, 0, 0)
+                    innerShadowStroke.Transparency = 0.7
+                    innerShadowStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                    innerShadowStroke.Parent = innerShadow
+                    
+                    local innerShadowCorner = Instance.new("UICorner")
+                    innerShadowCorner.CornerRadius = UDim.new(0, 11)
+                    innerShadowCorner.Parent = innerShadow
+
+                    -- 左侧装饰条（更宽更明显）
+                    local colorBar = Instance.new("Frame")
+                    colorBar.Size = UDim2.new(0, 5, 1, -16)
+                    colorBar.Position = UDim2.new(0, 0, 0, 8)
+                    colorBar.BackgroundColor3 = Color3.fromRGB(220, 220, 220)
+                    colorBar.BorderSizePixel = 0
+                    colorBar.ZIndex = 7
+                    colorBar.Parent = card
+
+                    local barCorner = Instance.new("UICorner")
+                    barCorner.CornerRadius = UDim.new(0, 2)
+                    barCorner.Parent = colorBar
+                    
+                    -- 装饰条发光效果
+                    local barGlow = Instance.new("UIStroke")
+                    barGlow.Thickness = 1
+                    barGlow.Color = Color3.fromRGB(255, 255, 255)
+                    barGlow.Transparency = 0.6
+                    barGlow.Parent = colorBar
+
+                    -- 名称标签（更大更突出）
+                    local nameLabel = Instance.new("TextLabel")
+                    nameLabel.Size = UDim2.new(1, -30, 0, isMobile and 28 or 32)
+                    nameLabel.Position = UDim2.new(0, 20, 0, 12)
+                    nameLabel.BackgroundTransparency = 1
+                    nameLabel.Text = dev.name
+                    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+                    nameLabel.TextSize = isMobile and 18 or 22
+                    nameLabel.Font = Enum.Font.GothamBold
+                    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+                    nameLabel.ZIndex = 9
+                    nameLabel.Parent = card
+                    
+                    -- 名称文字阴影
+                    local nameShadow = Instance.new("TextLabel")
+                    nameShadow.Size = nameLabel.Size
+                    nameShadow.Position = UDim2.new(0, 21, 0, 13)
+                    nameShadow.BackgroundTransparency = 1
+                    nameShadow.Text = dev.name
+                    nameShadow.TextColor3 = Color3.fromRGB(0, 0, 0)
+                    nameShadow.TextTransparency = 0.7
+                    nameShadow.TextSize = nameLabel.TextSize
+                    nameShadow.Font = nameLabel.Font
+                    nameShadow.TextXAlignment = nameLabel.TextXAlignment
+                    nameShadow.ZIndex = 8
+                    nameShadow.Parent = card
+
+                    -- 角色标签（带图标效果）
+                    local roleContainer = Instance.new("Frame")
+                    roleContainer.Size = UDim2.new(1, -30, 0, isMobile and 24 or 28)
+                    roleContainer.Position = UDim2.new(0, 20, 0, isMobile and 44 or 48)
+                    roleContainer.BackgroundTransparency = 1
+                    roleContainer.ZIndex = 9
+                    roleContainer.Parent = card
+                    
+                    -- 角色标签前的装饰点
+                    local roleDot = Instance.new("Frame")
+                    roleDot.Size = UDim2.new(0, 4, 0, 4)
+                    roleDot.Position = UDim2.new(0, 0, 0.5, -2)
+                    roleDot.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+                    roleDot.BorderSizePixel = 0
+                    roleDot.ZIndex = 10
+                    roleDot.Parent = roleContainer
+                    
+                    local roleDotCorner = Instance.new("UICorner")
+                    roleDotCorner.CornerRadius = UDim.new(0.5, 0)
+                    roleDotCorner.Parent = roleDot
+                    
+                    local roleLabel = Instance.new("TextLabel")
+                    roleLabel.Size = UDim2.new(1, -10, 1, 0)
+                    roleLabel.Position = UDim2.new(0, 10, 0, 0)
+                    roleLabel.BackgroundTransparency = 1
+                    roleLabel.Text = dev.role
+                    roleLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+                    roleLabel.TextSize = isMobile and 13 or 17
+                    roleLabel.Font = Enum.Font.GothamMedium
+                    roleLabel.TextXAlignment = Enum.TextXAlignment.Left
+                    roleLabel.ZIndex = 10
+                    roleLabel.Parent = roleContainer
+
+                    -- 描述标签（支持多行）
+                    local descLabel = Instance.new("TextLabel")
+                    descLabel.Size = UDim2.new(1, -30, 0, isMobile and 30 or 36)
+                    descLabel.Position = UDim2.new(0, 20, 0, isMobile and 72 or 80)
+                    descLabel.BackgroundTransparency = 1
+                    descLabel.Text = dev.desc
+                    descLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+                    descLabel.TextSize = isMobile and 12 or 15
+                    descLabel.Font = Enum.Font.Gotham
+                    descLabel.TextXAlignment = Enum.TextXAlignment.Left
+                    descLabel.TextYAlignment = Enum.TextYAlignment.Top
+                    descLabel.TextWrapped = true
+                    descLabel.ZIndex = 9
+                    descLabel.Parent = card
+                    
+                    -- 悬停效果
+                    card.MouseEnter:Connect(function()
+                        local hoverInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                        TweenService:Create(card, hoverInfo, {
+                            BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+                        }):Play()
+                        TweenService:Create(cardStroke, hoverInfo, {
+                            Transparency = 0.1,
+                            Thickness = 1
+                        }):Play()
+                        TweenService:Create(colorBar, hoverInfo, {
+                            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+                            Size = UDim2.new(0, 6, 1, -12)
+                        }):Play()
+                    end)
+                    
+                    card.MouseLeave:Connect(function()
+                        local leaveInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                        TweenService:Create(card, leaveInfo, {
+                            BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+                        }):Play()
+                        TweenService:Create(cardStroke, leaveInfo, {
+                            Transparency = 0.3,
+                            Thickness = 0.5
+                        }):Play()
+                        TweenService:Create(colorBar, leaveInfo, {
+                            BackgroundColor3 = Color3.fromRGB(220, 220, 220),
+                            Size = UDim2.new(0, 5, 1, -16)
+                        }):Play()
+                    end)
+                end
+                
+                -- 计算总高度并设置 CanvasSize
+                local totalHeight = cardPadding + #Developers * (cardHeight + cardSpacing) - cardSpacing + cardPadding
+                developerText.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+            end
+            developerText.Visible = true
+        end
+    end
+
+    for buttonName, buttonData in pairs(buttons) do
+        buttonData.button.MouseButton1Click:Connect(function()
+            switchPage(buttonName)
+        end)
+
+        buttonData.button.MouseEnter:Connect(function()
+            if currentPage ~= buttonName then
+                local hoverInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                TweenService:Create(buttonData.button, hoverInfo, {
+                    BackgroundColor3 = Color3.fromRGB(55, 75, 105),
+                    TextColor3 = Color3.fromRGB(255, 255, 255)
+                }):Play()
+                TweenService:Create(buttonData.stroke, hoverInfo, {
+                    Color = Color3.fromRGB(100, 140, 200),
+                    Transparency = 0.2
+                }):Play()
+                TweenService:Create(buttonData.innerStroke, hoverInfo, {
+                    Transparency = 0.6
+                }):Play()
+                buttonData.gradient.Color = ColorSequence.new{
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(65, 85, 115)),
+                    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(55, 75, 105)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 70, 100))
+                }
+            end
+        end)
+
+        buttonData.button.MouseLeave:Connect(function()
+            if currentPage ~= buttonName then
+                local leaveInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                TweenService:Create(buttonData.button, leaveInfo, {
+                    BackgroundColor3 = Color3.fromRGB(30, 40, 60),
+                    TextColor3 = Color3.fromRGB(255, 255, 255)
+                }):Play()
+                TweenService:Create(buttonData.stroke, leaveInfo, {
+                    Color = Color3.fromRGB(70, 90, 120),
+                    Transparency = 0.3
+                }):Play()
+                TweenService:Create(buttonData.innerStroke, leaveInfo, {
+                    Transparency = 0.9
+                }):Play()
+                buttonData.gradient.Color = ColorSequence.new{
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 50, 70)),
+                    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(30, 40, 60)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 35, 55))
+                }
+            end
+        end)
+    end
+end
+
+showLoadingAnimation(function(screenGui, mainContainer, background)
+    showGameList(screenGui, mainContainer, background, LoadServer)
+end)
