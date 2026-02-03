@@ -19,7 +19,7 @@ local LoadingSteps = {
 }
 local Developers = {
     {name = "神仇", role = "主作者", desc = "项目负责人 · 核心架构", color = Color3.fromRGB(255, 100, 100)},
-    {name = "麥克丰", role = "副作者", desc = "功能开发 · 代码优化", color = Color3.fromRGB(100, 255, 100)},
+    {name = "Lining", role = "副作者", desc = "功能开发 · 代码优化", color = Color3.fromRGB(100, 255, 100)},
 }
 
 return LoadingSteps, Notice, LoadServer, Developers
